@@ -11,32 +11,33 @@
         responseContainer.innerHTML = '';
         searchedForText = searchField.value;
 
-        $.ajax()
+        $.ajax({
+            url: `https://api.unsplash.com/search/photos?page=1&query=${searchedForText}`,
+            headers: {
+                Authorization: 'Client-ID cd1204408f2e8d1b7807a53cf5ce6406d7920bfec65e469b430a6782dcefd431',
+            }
+        }).done(addImage);
+
+        $.ajax({
+            url: `http://api.nytimes.com/svc/search/v2/articlesearch.json?q=${searchedForText}&api-key=e1563447a0ef42cfa445ad4cbcc8d05d`,
+        }).done(addArticles);
 
     });
 
 
-    function addImage(){
-        let htmlContent = '';
-        const data = JSON.parse(this.responseText);
-
-        if(data && data.results && data.results[0])
-        {
-            const firstImage = data.results[0];
+    function addImage(images){
+            let htmlContent = '';
+            const firstImage = images.results[0];
             htmlContent = `<figure>
                 <img src="${firstImage.urls.regular}" alt="${searchedForText}"
                 <figcaption>${searchedForText} by ${firstImage.user.name}</figcaption>
             </figure>`;
-        }else{
-            htmlContent = `<div class="error-no-image">No images available</div>`;
-        }
-
         responseContainer.insertAdjacentHTML('afterbegin',htmlContent);
     }
 
-    function addArticles() {
+    function addArticles(articles) {
         let htmlContent = '';
-        const data = JSON.parse(this.responseText);
+        const data = articles;
 
         if(data && data.response && data.response.docs.length > 0){
             htmlContent = '<ul>' + data.response.docs.map(article => `<li class="article">
